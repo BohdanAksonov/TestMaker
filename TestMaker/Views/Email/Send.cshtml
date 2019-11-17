@@ -1,0 +1,144 @@
+﻿<div id="app">
+    <v-app>
+        @Html.AntiForgeryToken()
+        @await Html.PartialAsync("~/Views/Shared/_RightSidePanelPartial.cshtml")
+        <v-content>
+            <v-container align-center justify-end row fill-height>
+                <v-layout xs12 sm8 md6>
+                    <v-flex>
+                        <v-card class="elevation-15">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>Send test</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text>
+                                <v-container>
+                                    <v-layout>
+                                        <v-flex>
+                                            <v-card-text>
+                                                <v-text-field label="Input email address"
+                                                              v-model="email"
+                                                              v-validate="'required|email'"
+                                                              :error-messages="errors.collect('email')"
+                                                              data-vv-name="email"
+                                                              clearable>
+                                                </v-text-field>
+                                            </v-card-text>
+                                        </v-flex>
+                                        <v-flex>
+                                            <v-card-text>
+                                                <v-btn color="warning" v-on:click="add">Add</v-btn>
+                                            </v-card-text>
+                                        </v-flex>
+                                    </v-layout>
+                                </v-container>
+                            </v-card-text>
+                        </v-card>
+                        <v-card class="elevation-15 mt-4">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>Emails to send</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text>
+                                <v-container>
+                                    <v-layout>
+                                        <v-flex>
+                                            <v-card-text>
+                                                <v-list>
+                                                    <v-subheader>E-mails</v-subheader>
+                                                    <v-list-tile
+                                                                 v-for="email in emailsToSend"
+                                                                 :key="email.address">
+                                                        <v-list-tile-content>
+                                                            <v-list-tile-title>{{email.address}}</v-list-tile-title>
+                                                        </v-list-tile-content>
+                                                    </v-list-tile>
+                                                </v-list>
+                                            </v-card-text>
+                                        </v-flex>
+                                        <v-flex>
+                                            <v-card-text>
+                                                <v-btn color="red" v-on:click="send">Send</v-btn>
+                                            </v-card-text>
+                                        </v-flex>
+                                    </v-layout>
+                                </v-container>
+                            </v-card-text>
+                        </v-card>
+
+                    </v-flex>
+                </v-layout>
+            </v-container>
+        </v-content>
+    </v-app>
+</div>
+
+@section Scripts{
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    drawer: true,
+                    email: "",
+                    emailsToSend: [],
+                    itemsForMembers: [
+                        { title: "Home", link: "/Home/Index/", icon: "home", id: "homeBtn" },
+                        { title: "Create test", link: "/Test/CreateTest/", icon: "ballot" },
+                        { title: "Graphs", link: "/Test/Graphs/", icon: "equalizer" }
+
+                    ],
+                    itemsLoginPartial: [
+                        { title: "Login", link: "/Account/Login/" },
+                        { title: "Register", link: "/Account/Register/" }
+                    ],
+                    itemsForAdmins: [
+                        { title: "Home", link: "/Home/Index/", icon: "home" },
+                        { title: "Manage user roles", link: "/Admin/ManageUserRoles/", icon: "dashboard" },
+                        { title: "Manage users", link: "/Admin/Members/", icon: "people" }
+                    ],
+                    dictionary: {
+                        attributes: {
+                            email:"email"
+                        }
+                    }
+                }
+            },
+            mounted() {
+                this.$validator.localize('en', this.dictionary)
+            },
+            methods: {
+                add: function () {
+                    this.$validator.validateAll().then((result) => {
+                        if (result) {
+                            var mail = this.email;
+                            this.emailsToSend.push({ address: mail });
+                        }
+                    })
+                },
+                send: function () {
+
+                    var data2send = ({ "Params": this.emailsToSend, "TestId": @ViewContext.RouteData.Values["id"]});
+                    console.log(JSON.stringify(data2send));
+                    $.ajax({
+                        type: "post",
+                        url: "/Email/SendAsync",
+                        beforeSend: function (request) {
+                            request.setRequestHeader("RequestVerificationToken", $("[name = '__RequestVerificationToken']").val());
+                        },
+                        contentType: "application/json",
+                        data: JSON.stringify( data2send ),
+                        dataType: "json",
+                        success: function (response) {
+                            if (response) {
+                                alert("Emails are send!");
+                            }
+                        }
+
+                    })
+
+                }
+            }
+        });
+    </script>
+}

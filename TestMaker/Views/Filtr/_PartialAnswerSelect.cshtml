@@ -1,0 +1,10 @@
+﻿@model List<Answer>
+
+
+<select class="custom-select" id="answerSelect">
+    <option selected>Select Answer</option>
+    @foreach (var answer in Model)
+    {
+        <option value="@answer.QuestionId">@answer.Text</option>
+    }
+</select>

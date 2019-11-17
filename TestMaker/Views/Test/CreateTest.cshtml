@@ -1,0 +1,75 @@
+﻿@model TestViewModel
+
+@{ ViewData["Title"] = "Create New Test";}
+
+
+<div id="app">
+    <v-app>
+        @await Html.PartialAsync("~/Views/Shared/_RightSidePanelPartial.cshtml")
+        <v-content>
+            <v-container align-center justify-end row fill-height>
+                <v-layout xs12 sm8 md6>
+                    <v-flex>
+                        <v-card class="elevation-15">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>Create new test</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text>
+                                <form method="post" asp-controller="Test" asp-action="CreateTest">
+                                    <v-text-field name="title" label="Input title" clearable></v-text-field>
+                                    <v-text-field name="description" label="Input description" clearable></v-text-field>
+                                    <v-btn type="submit" color="success">Create</v-btn>
+                                </form>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+
+        </v-content>
+    </v-app>
+</div>
+
+@section Scripts{
+    <script>
+        var app = new Vue({
+            el: '#app',
+                        data() {
+                            return {
+                                drawer: true,
+                                itemsForMembers: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home", id: "homeBtn" },
+                                    { title: "Create test", link: "/Test/CreateTest/", icon: "ballot" },
+                                    { title: "Graphs", link: "/Test/Graphs/", icon: "equalizer" }
+
+                                ],
+                                itemsLoginPartial: [
+                                    { title: "Login", link: "/Account/Login/" },
+                                    { title: "Register", link: "/Account/Register/" }
+                                ],
+                                itemsForAdmins: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home" },
+                                    { title: "Manage user roles", link: "/Admin/ManageUserRoles/", icon: "dashboard" },
+                                    { title: "Manage users", link: "/Admin/Members/", icon: "people" }
+                                ],
+                                headers: [
+                                    { text: "Title", align: "center", sortable: false, value: "title" },
+                                    { text: "Description", value: "description" },
+                                    { text: "Create date", value: "createDate" },
+                                    { text: "Last modified date", value: "lastMD" },
+                                ],
+                                tests: [],
+                                dropDownFromResult: [
+                                    { title: "Single answer", link: "/Question/CreateSingleAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Short answer", link: "/Question/CreateShortAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Multiple choice", link: "/Question/CreateMultipleChoice/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Range answer", link: "/Question/CreateRangeQuestion/@ViewContext.RouteData.Values["id"]" }
+                                ]
+                            }
+                        }
+        })
+    </script>
+}
+
+

@@ -1,0 +1,128 @@
+﻿@model QuestionViewModel
+
+@{ ViewData["Title"] = "Edit Question"; }
+<div id="app">
+    <v-app>
+        @await Html.PartialAsync("~/Views/Shared/_RightSidePanelPartial.cshtml")
+        @Html.AntiForgeryToken()
+        <v-content>
+            <v-container align-center justify-end row fill-height>
+                <v-layout xs12 sm8 md6>
+                    <v-flex>
+                        <v-card class="elevation-15">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>Edit question</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text>
+                                @*<form method="post" asp-controller="Question" asp-action="EditQuestion">*@
+                                    <v-text-field 
+                                                  v-model="questionId"
+                                                  name="questionId" 
+                                                  label="QuestionId" 
+                                                  readonly 
+                                                  v-show="false"></v-text-field>
+                                    <v-text-field 
+                                                  name="text" 
+                                                  label="Change question" 
+                                                  clearable
+                                                  v-validate="'required'"
+                                                  :error-messages="errors.collect('text')"
+                                                  data-vv-name="text"
+                                                  v-model="Text"></v-text-field>
+                                    <v-btn @@click="submit" color="blue darken-1">Save</v-btn>
+                                @*</form>*@
+
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+
+        </v-content>
+    </v-app>
+</div>
+
+@section Scripts{
+    <script>
+        var app = new Vue({
+            el: '#app',
+            $_veeValidate: {
+                validator:"new"
+            },
+
+                        data() {
+                            return {
+                                drawer: false,
+                                questionId: "@ViewContext.RouteData.Values["id"]",
+                                Text:"",
+                                itemsForMembers: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home", id: "homeBtn" },
+                                    { title: "Create test", link: "/Test/CreateTest/", icon: "ballot" },
+                                    { title: "Graphs", link: "/Test/Graphs/", icon: "equalizer" }
+
+                                ],
+                                itemsLoginPartial: [
+                                    { title: "Login", link: "/Account/Login/" },
+                                    { title: "Register", link: "/Account/Register/" }
+                                ],
+                                itemsForAdmins: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home" },
+                                    { title: "Manage user roles", link: "/Admin/ManageUserRoles/", icon: "dashboard" },
+                                    { title: "Manage users", link: "/Admin/Members/", icon: "people" }
+                                ],
+                                headers: [
+                                    { text: "Title", align: "center", sortable: false, value: "title" },
+                                    { text: "Description", value: "description" },
+                                    { text: "Create date", value: "createDate" },
+                                    { text: "Last modified date", value: "lastMD" },
+                                ],
+                                tests: [],
+                                dropDownFromResult: [
+                                    { title: "Single answer", link: "/Question/CreateSingleAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Short answer", link: "/Question/CreateShortAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Multiple choice", link: "/Question/CreateMultipleChoice/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Range answer", link: "/Question/CreateRangeQuestion/@ViewContext.RouteData.Values["id"]" }
+                                ],
+                                dictionary: {
+                                    attributes: {
+                                        text: "Question"
+                                    }
+                                }
+
+                            }
+            },
+            mounted() {
+                this.$validator.localize("en", this.dictionary)
+            },
+            methods: {
+                submit() {
+                    this.$validator.validateAll().then((result) => {
+                        if (result) {
+                            data2send = JSON.stringify({ Text: this.Text, QuestionId: this.questionId });
+                            var testId = this.TestId;
+                            $.ajax({
+                                url: "@Url.Action("EditQuestion", "Question")",
+                                type: "post",
+                                beforeSend: function (request) {
+                                    request.setRequestHeader("RequestVerificationToken", $("[name = '__RequestVerificationToken']").val());
+                                },
+                                contentType: "application/json; charset=utf-8",
+                                data: data2send,
+                                success: function (data) {
+                                    if (data != null) {
+                                        window.location.replace(data);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+
+        })
+    </script>
+}
+
+
+

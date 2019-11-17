@@ -1,0 +1,98 @@
+﻿@model LoginViewModel
+@inject SignInManager<AppUser> SignInManager
+
+@{ 
+    ViewData["Title"] = "Login Page";
+ }
+<div id="app">
+    <v-app >
+        @Html.AntiForgeryToken()
+        <v-layout align-center justify-center row>
+            <v-flex xs12 sm8 md4>
+                <v-card class="elevation-15">
+                    <v-toolbar color="deep-orange darken-3">
+                        <v-toolbar-title>Login</v-toolbar-title>
+                        <v-spacer></v-spacer>
+                    </v-toolbar>
+                    <v-card-text>
+                            <v-text-field 
+                                          prepend-icon="person" 
+                                          v-model="username" 
+                                          name="username" 
+                                          label="Login"
+                                          v-validate="'required|email'"
+                                          :error-messages="errors.collect('username')"
+                                          data-vv-name="username">
+                            </v-text-field>
+                            <v-text-field 
+                                          prepend-icon="lock" 
+                                          v-model="password" 
+                                          name="password" 
+                                          label="Password" 
+                                          id="password" 
+                                          type="password"
+                                          v-validate="'required'"
+                                          :error-messages="errors.collect('password')"
+                                          data-vv-name="password">
+                            </v-text-field>
+                            <v-btn @@click="submit" color="blue darken-1" block>Login</v-btn>
+                            <v-btn href="/SamplePersons/GetTest" color="lime lighten-1" block>Find test</v-btn>
+                            <v-btn href="/Account/Register/" color="red" block>Register</v-btn>
+                    </v-card-text>
+                </v-card>
+            </v-flex>
+        </v-layout>
+    </v-app>
+</div>
+@section Scripts{ 
+    <script>
+        var app = new Vue({
+            el: "#app",
+            $_veeValidate: {
+                validator:'new'
+            },
+            data() {
+                return {
+                    username: "",
+                    password: "",
+                    dictionary: {
+                        attributes: {
+                            email: "E-mail Address"
+                        }
+                    }
+                }
+            },
+            mounted() {
+                this.$validator.localize('en', this.dictionary)
+            },
+            methods: {
+                submit() {
+                    this.$validator.validateAll().then((result) => {
+                        if (result) {
+                            data2send = JSON.stringify({ Username: this.username, Password: this.password });
+                            $.ajax({
+                                url: "/Account/Login/",
+                                type: "post",
+                                beforeSend: function (request) {
+                                    request.setRequestHeader("RequestVerificationToken", $("[name = '__RequestVerificationToken']").val());
+                                },
+                                contentType: "application/json",
+                                data: data2send,
+                                dataType: "json",
+                                success: function (data) {
+                                    if (data != false) {
+                                        window.location.href = data;
+                                    }
+                                    else {
+                                        alert("Invalid login or password");
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        })
+
+    </script>
+}

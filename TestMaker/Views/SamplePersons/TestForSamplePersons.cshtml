@@ -1,0 +1,211 @@
+﻿@model IList<Question>
+
+@{
+    ViewData["Title"] = "Test";
+    var firstQuestion = Model.First();
+    int testId = firstQuestion.TestId;
+}
+@Html.AntiForgeryToken()
+
+<div id="app">
+    <v-app>
+        @await Html.PartialAsync("~/Views/Shared/_RightSidePanelPartial.cshtml")
+        
+        <v-content>
+            <v-container align-center justify-end row fill-height>
+                <v-layout xs12 sm8 md6>
+                    <v-flex>
+                        <v-card class="elevation-15">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>Test for complete</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text class="text-xs-center">
+                                @foreach (var question in Model)
+                                {
+                                    <v-container fluid grid-list-xl>
+                                        <v-layout align-center justify-center row fill-height>
+                                            <v-flex xs12 sm4 md4 lg4 class="text-md-center text-">
+                                                <v-toolbar color="primary">
+                                                    <v-toolbar-title>@question.Text</v-toolbar-title>
+                                                    <v-spacer></v-spacer>
+                                                </v-toolbar>
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-container>
+                                    <v-container fluid grid-list-xl>
+                                        <v-layout align-center justify-center row fill-height>
+                                            <v-flex xs12 sm4 md4 lg4>
+
+                                                @if (question.Type == "Single")
+                                                {
+                                                    <v-radio-group>
+                                                        @foreach (var answer in question.Answers)
+                                                        {
+                                                            <v-radio label="@answer.Text"
+                                                                     name="Answers_@question.Id"
+                                                                     value="@answer.Id"
+                                                                     >
+                                                            </v-radio>
+                                                        }
+                                                    </v-radio-group>
+                                                }
+                                                else if (question.Type == "Multiple")
+                                                {
+                                                    @foreach (var answer in question.Answers)
+                                                    {
+                                                        <v-checkbox name="Answers"
+                                                                    :value="@answer.Id"
+                                                                    label="@answer.Text"
+                                                                    >
+                                                        </v-checkbox>
+                                                    }
+                                                }
+                                                else if (question.Type == "Short")
+                                                {
+                                                    @foreach (var answer in question.Answers)
+                                                    {
+                                                        <v-textarea name="@answer.Id"
+                                                                    box
+                                                                    label="Input text here"
+                                                                    rows="2"
+                                                                    auto-grow
+                                                                    counter="200"
+                                                                    id="@answer.Id"
+                                                                    clearable>
+                                                        </v-textarea>
+                                                    }
+                                                }
+                                                else if (question.Type == "Range")
+                                                {
+                                                    @foreach (var answer in question.Answers)
+                                                    {
+                                                        <v-text-field 
+                                                                      type="number" 
+                                                                      label="From 0 to 10" 
+                                                                      min="0" max="10" 
+                                                                      value="0" 
+                                                                      id="@answer.Id">
+                                                        </v-text-field>
+                                                    }
+                                                }
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-container>
+                                    <v-divider></v-divider>
+                                }
+                                <v-btn @@click="submit" id="btn" color="success">Save</v-btn>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+
+        </v-content>
+    </v-app>
+</div>
+
+@section Scripts{
+    <script>
+        var app = new Vue({
+                el: '#app',
+                $_veeValidate: {
+                    validator:"new"
+                },
+                data() {
+                                return {
+                                            drawer: true,
+                                            itemsForMembers: [
+                                                { title: "Home", link: "/Home/Index/", icon: "home", id: "homeBtn" },
+                                                { title: "Create test", link: "/Test/CreateTest/", icon: "ballot" },
+                                            ],
+                                            itemsLoginPartial: [
+                                                { title: "Login", link: "/Account/Login/" },
+                                                { title: "Register", link: "/Account/Register/" }
+                                            ],
+                                            itemsForAdmins: [
+                                                { title: "Home", link: "/Home/Index/", icon: "home" },
+                                                { title: "Manage user roles", link: "/Admin/ManageUserRoles/", icon: "dashboard" },
+                                                { title: "Manage users", link: "/Admin/Members/", icon: "people" }
+                                            ],
+                                            headers: [
+                                                { text: "Title", align: "center", sortable: false, value: "title" },
+                                                { text: "Description", value: "description" },
+                                                { text: "Create date", value: "createDate" },
+                                                { text: "Last modified date", value: "lastMD" },
+                                            ],
+                                            dropDownFromResult: [
+                                                { title: "Single answer", link: "/Question/CreateSingleAnswer/@ViewContext.RouteData.Values["id"]" },
+                                                { title: "Short answer", link: "/Question/CreateShortAnswer/@ViewContext.RouteData.Values["id"]" },
+                                                { title: "Multiple choice", link: "/Question/CreateMultipleChoice/@ViewContext.RouteData.Values["id"]" },
+                                                { title: "Range answer", link: "/Question/CreateRangeQuestion/@ViewContext.RouteData.Values["id"]" }
+                                            ],
+                                            dictionary: {
+                                                attributes: {
+                                                    checkbox: "checkbox",
+                                                    password: "Password"
+                                                }
+                                            },
+                                            testId:@testId,
+                                        }
+                        },
+            methods: {
+                submit(e) {
+                                var arr = [];
+                                arr.push({ TestId: this.testId });
+                    console.log(arr);
+
+                                    $("input:checked[name=Answers]").each(function () {
+                                        var id = $(this).val()
+                                        var type = "Multiple";
+                                        arr.push({ AnswerId: id, Type: type });
+                                    });
+                                    $("input[type='radio']:checked").each(function () {
+                                        var radioVal = $(this).val();
+                                        var type = "Single";
+                                        arr.push({ AnswerId: radioVal, Type: type });
+                                    });
+                                    $("textarea").each(function () {
+                                        var textareaVal = $(this).val();
+                                        var textareaId = $(this).attr("id");
+                                        var type = "Short";
+                                        arr.push({ Text: textareaVal, AnswerId: textareaId, Type: type });
+                                    });
+                                    $("input[type='number']").each(function () {
+                                        var numberVal = $(this).val();
+                                        var numberId = $(this).attr("id");
+                                        var type = "Range";
+                                        arr.push({ Text: numberVal, AnswerId: numberId, Type: type });
+                                    })
+
+                                    console.log(arr);
+                                    $.ajax({
+                                        type: "post",
+                                        url: "/SamplePersons/CompleteTest",
+                                        beforeSend: function (request) {
+                                            request.setRequestHeader("RequestVerificationToken", $("[name='__RequestVerificationToken']").val());
+                                        },
+                                        contentType: "application/json",
+                                        data: JSON.stringify(arr),
+                                        dataType: "json",
+                                        success: function (response) {
+                                            if (response == true) {
+                                                alert("Thank You for complete test!");
+                                                window.location = "/Account/Login";
+                                            }
+                                            else {
+                                                alert("You must answer on all questions!")
+                                            }
+                                        },
+                                        error: function (err) {
+                                            console.log(err);
+                                        }
+                                    });
+                            }
+                     }
+        })
+    </script>
+}
+
+
+

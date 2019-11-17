@@ -1,0 +1,122 @@
+﻿@model RegisterViewModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Register";
+}
+<div id="app">
+    <v-app light>
+        <v-content>
+            @Html.AntiForgeryToken()
+            <v-container align-center justify-end row fill-height>
+                <v-layout align-center justify-center row>
+                    <v-flex xs12 sm8 md6>
+                        <v-card class="elevation-15">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>Register</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text>
+                                    <v-text-field 
+                                                  prepend-icon="email" 
+                                                  name="Email" 
+                                                  label="Input your email" 
+                                                  type="email"
+                                                  v-model="email"
+                                                  v-validate="'required|email'"
+                                                  :error-messages="errors.collect('email')"
+                                                  data-vv-name="email">
+                                    </v-text-field>
+                                    <v-text-field 
+                                                  prepend-icon="lock" 
+                                                  name="Password" 
+                                                  label="Input your password" 
+                                                  type="password"
+                                                  v-model="password"
+                                                  v-validate="'required|min:10|verify_password'"
+                                                  :error-messages="errors.collect('password')"
+                                                  data-vv-name="password"
+                                                  ref="password">
+                                    </v-text-field>
+                                    <v-text-field 
+                                                  prepend-icon="lock" 
+                                                  name="ConfirmPassword" 
+                                                  label="Confirm your password" 
+                                                  type="password"
+                                                  v-model="confirmPassword"
+                                                  v-validate="'required|confirmed:password'"
+                                                  :error-messages="errors.collect('confirmPassword')"
+                                                  data-vv-name="confirmPassword">
+                                    </v-text-field>
+                                    <v-btn @@click="submit" color="amber lighten-1" block>Register</v-btn>
+                                    <v-btn href="/Account/Login/" color="red" block>Back</v-btn>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+                </v-container>
+            </v-content>
+    </v-app>
+</div>
+@section Scripts{
+    <script>
+        var loginPage = new Vue({
+            el: "#app",
+            $_veeValidate: {
+                validator: 'new'
+            },
+            data() {
+                return {
+                    email: "",
+                    password: "",
+                    confirmPassword: "",
+                    dictionary: {
+                        attributes: {
+                            email: "E-mail Address",
+                            password: "Password",
+                            confirmPassword:"Confirm password"
+                        }
+                    }
+                }
+            },
+            created() {
+                this.$validator.extend('verify_password', {
+                    getMessage: field => `The password must contain at least: 1 uppercase letter, 1 lowercase letter, 1 number, and one special character (E.g. , . _ & ? etc)`,
+                    validate: value => {
+                    var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@@#\$%\^&\*])(?=.{8,})");
+                    return strongRegex.test(value);
+                    }           
+                });
+            },
+            mounted() {
+                this.$validator.localize('en', this.dictionary)
+            },
+            methods: {
+                submit() {
+                    this.$validator.validateAll().then((result) => {
+                        if (result) {
+                            data2send = JSON.stringify({ Password: this.password, ConfirmPassword: this.confirmPassword, Email: this.email });
+                            $.ajax({
+                                url: "/Account/Register/",
+                                type: "post",
+                                beforeSend: function (request) {
+                                    request.setRequestHeader("RequestVerificationToken", $("[name = '__RequestVerificationToken']").val());
+                                },
+                                contentType: "application/json; charset=utf-8",
+                                data: data2send,
+                                success: function (data) {
+                                    window.location.href = data;
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        })
+
+    </script>
+}
+
+
+
+

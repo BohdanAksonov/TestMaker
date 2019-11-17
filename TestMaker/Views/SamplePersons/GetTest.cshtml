@@ -1,0 +1,117 @@
+﻿@model TestViewModel
+@{
+    ViewData["Title"] = "Find test";
+}
+<div id="app">
+    <v-app>
+        @await Html.PartialAsync("~/Views/Shared/_RightSidePanelPartial.cshtml")
+        @Html.AntiForgeryToken()
+        <v-content>
+            <v-container align-center justify-end row fill-height>
+                <v-layout xs12 sm8 md6>
+                    <v-flex>
+                        <v-card class="elevation-15">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>Find test</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text>
+                                <form asp-action="GetTest" asp-controller="SamplePersons" method="post" id="myForm">
+                                    <v-text-field 
+                                                  name="id" 
+                                                  label="Input test id" 
+                                                  clearable
+                                                  v-model ="testId"
+                                                  v-validate="'required'"
+                                                  :error-messages="errors.collect('id')"
+                                                  data-vv-name="id">
+                                    </v-text-field>
+                                    <v-text-field 
+                                                  name="password" 
+                                                  label="Input access password" 
+                                                  clearable
+                                                  v-validate="'required'"
+                                                  :error-messages="errors.collect('password')"
+                                                  data-vv-name="password"
+                                                  v-model="password"
+                                                  type="password"
+                                                   ></v-text-field>
+                                    <v-btn @@click="submit" color="success">Find</v-btn>
+                                </form>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+
+        </v-content>
+    </v-app>
+</div>
+
+@section Scripts{
+    <script>
+        var app = new Vue({
+            el: '#app',
+            $_veeValidate: {
+                validator:"new"
+            },
+
+                        data() {
+                            return {
+                                drawer: true,
+                                testId: "",
+                                password:"",
+                                itemsForMembers: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home", id: "homeBtn" },
+                                    { title: "Create test", link: "/Test/CreateTest/", icon: "ballot" },
+                                ],
+                                itemsLoginPartial: [
+                                    { title: "Login", link: "/Account/Login/" },
+                                    { title: "Register", link: "/Account/Register/" }
+                                ],
+                                itemsForAdmins: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home" },
+                                    { title: "Manage user roles", link: "/Admin/ManageUserRoles/", icon: "dashboard" },
+                                    { title: "Manage users", link: "/Admin/Members/", icon: "people" }
+                                ],
+                                headers: [
+                                    { text: "Title", align: "center", sortable: false, value: "title" },
+                                    { text: "Description", value: "description" },
+                                    { text: "Create date", value: "createDate" },
+                                    { text: "Last modified date", value: "lastMD" },
+                                ],
+                                tests: [],
+                                dropDownFromResult: [
+                                    { title: "Single answer", link: "/Question/CreateSingleAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Short answer", link: "/Question/CreateShortAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Multiple choice", link: "/Question/CreateMultipleChoice/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Range answer", link: "/Question/CreateRangeQuestion/@ViewContext.RouteData.Values["id"]" }
+                                ],
+                                dictionary: {
+                                    attributes: {
+                                        testId: "test id",
+                                        password:"Password"
+                                    }
+                                }
+                            }
+            },
+            mounted() {
+                this.$validator.localize("en", this.dictionary)
+            },
+            methods: {
+                submit(e) {
+                    this.$validator.validateAll().then((result) => {
+                        if (result) {
+                           document.querySelector('#myForm').submit();
+                        }
+                    });
+                }
+            }
+
+        })
+    </script>
+}
+
+
+
+

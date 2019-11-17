@@ -1,0 +1,23 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    
+    //signed in user
+    <form style="padding-top:22px;" method="post" id="loginPartialForm" asp-controller="Account" asp-action="Logout">
+        <v-btn type="submit"  flat>Logout</v-btn>
+    </form>
+}
+else
+{
+    <v-btn v-for="item in itemsLoginPartial"
+           tag="a"
+           :key="item.title"
+           :href="item.link"
+           flat>
+        {{item.title}}
+    </v-btn>
+}

@@ -1,0 +1,148 @@
+﻿@model ResultViewModel
+
+@{
+    ViewData["Title"] = "Result";
+}
+
+<div id="app">
+    <v-app>
+        @await Html.PartialAsync("~/Views/Shared/_RightSidePanelPartial.cshtml")
+        <v-content>
+            <v-container align-center justify-end row fill-height>
+                <v-layout xs12 sm8 md6>
+                    <v-flex>
+                        <v-card class="elevation-15">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>
+                                    @foreach (var test in Model.Tests)
+                                    {
+                                        @test.Title
+                                    }
+                                </v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text>
+                                @foreach (var question in Model.Questions)
+                                {
+                                    <v-container fluid grid-list-xl>
+                                        <v-layout align-center justify-center row fill-height>
+                                            <form asp-action="DeleteQuestion" asp-controller="Question" asp-route-id="@question.Id" method="post">
+                                                @question.Text
+                                                <v-btn tag="a" fab href="/Answer/CreateNewAnswer/@question.Id" color="deep-purple lighten-1" small><v-icon>add</v-icon></v-btn>
+                                                <v-btn tag="a" fab href="/Question/EditQuestion/@question.Id" color="success" small><v-icon>create</v-icon></v-btn>
+                                                <v-btn type="submit" fab color="red" small><v-icon>restore_from_trash</v-icon></v-btn>
+                                            </form>
+                                        </v-layout>
+                                    </v-container>
+                                    @foreach (var answer in question.Answers)
+                                    {
+                                        <v-container fluid grid-list-xl>
+                                            <v-layout align-center justify-center row fill-height>
+                                                <form asp-action="DeleteAnswer" asp-controller="Answer" asp-route-id="@answer.Id" method="post">
+                                                    @if (question.Type == "Multiple")
+                                                    {
+                                                        <input type="checkbox" id="@answer.Id" disabled />
+                                                        <label asp-for="@answer.Id">@answer.Text</label>
+                                                    }
+                                                    else if (question.Type == "Single")
+                                                    {
+                                                        <input type="radio" id="@answer.Id" disabled />
+                                                        <label asp-for="@answer.Id">@answer.Text</label>
+                                                    }
+                                                    else if (question.Type == "Short")
+                                                    {
+                                                        <v-textarea name="@answer.Id"
+                                                                    box
+                                                                    label="Input text here"
+                                                                    auto-grow readonly>
+                                                        </v-textarea>
+                                                    }
+                                                    else if (question.Type == "Range")
+                                                    {
+                                                        <v-text-field type="number" min="0" max="10" value="0" readonly></v-text-field>
+                                                    }
+                                                    <v-btn type="submit" color="light-blue " small><v-icon>restore_from_trash</v-icon></v-btn>
+                                                </form>
+                                            </v-layout>
+                                        </v-container>
+
+                                    }
+                                    <v-divider></v-divider>
+
+                                }
+                                <div class="text-xs-center">
+                                    <v-menu>
+                                        <template #activator="{ on: menu }">
+                                            <v-tooltip bottom>
+                                                <template #activator="{ on: tooltip }">
+                                                    <v-btn color="primary"
+                                                           v-on="{ ...tooltip, ...menu }">Create new question</v-btn>
+                                                </template>
+                                                <span>Add questions</span>
+                                            </v-tooltip>
+                                        </template>
+                                        <v-list>
+                                            <v-list-tile v-for="item in dropDownFromResult"
+                                                         :key="item.title"
+                                                         :href="item.link">
+                                                <v-list-tile-title>{{item.title}}</v-list-tile-title>
+                                            </v-list-tile>
+
+                                        </v-list>
+                                    </v-menu>
+                                </div>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+
+
+                </v-layout>
+            </v-container>
+
+        </v-content>
+    </v-app>
+</div>
+
+
+
+@section Scripts{
+    <script>
+        var app = new Vue({
+            el: '#app',
+                        data() {
+                            return {
+                                drawer: true,
+                                itemsForMembers: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home", id: "homeBtn" },
+                                    { title: "Create test", link: "/Test/CreateTest/", icon: "ballot" },
+                                    { title: "Graphs", link: "/Test/Graphs/", icon: "equalizer" }
+
+                                ],
+                                itemsLoginPartial: [
+                                    { title: "Login", link: "/Account/Login/" },
+                                    { title: "Register", link: "/Account/Register/" }
+                                ],
+                                itemsForAdmins: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home" },
+                                    { title: "Manage user roles", link: "/Admin/ManageUserRoles/", icon: "dashboard" },
+                                    { title: "Manage users", link: "/Admin/Members/", icon: "people" }
+                                ],
+                                headers: [
+                                    { text: "Title", align: "center", sortable: false, value: "title" },
+                                    { text: "Description", value: "description" },
+                                    { text: "Create date", value: "createDate" },
+                                    { text: "Last modified date", value: "lastMD" },
+                                ],
+                                tests: [],
+                                dropDownFromResult: [
+                                    { title: "Single answer", link: "/Question/CreateSingleAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Short answer", link: "/Question/CreateShortAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Multiple choice", link: "/Question/CreateMultipleChoice/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Range answer", link: "/Question/CreateRangeQuestion/@ViewContext.RouteData.Values["id"]" }
+                                ]
+                            }
+                        }
+        })
+    </script>
+
+}

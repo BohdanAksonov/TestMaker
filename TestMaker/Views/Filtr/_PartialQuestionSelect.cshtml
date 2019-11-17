@@ -1,0 +1,12 @@
+﻿@model List<Question>
+
+<select class="custom-select" id="questionSelect">
+    <option selected>Select Question</option>
+    @foreach (var question in Model)
+    {
+        if (question.Type == "Multiple" || question.Type== "Single")
+        {
+            <option value="@question.Id">@question.Text</option>
+        }
+    }
+</select>

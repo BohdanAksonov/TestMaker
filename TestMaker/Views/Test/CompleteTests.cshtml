@@ -1,0 +1,148 @@
+﻿@model ResultViewModel
+@{
+    ViewData["Title"] = "Complete Tests";
+    var samplePersonId = Model.AnswerChoices.Select(p => p.SamplePersonId).Distinct();
+}
+
+<div id="app">
+    <v-app>
+        @await Html.PartialAsync("~/Views/Shared/_RightSidePanelPartial.cshtml")
+        <v-content>
+            <v-container align-center justify-end row fill-height>
+                <v-layout xs12 sm8 md6>
+                    <v-flex>
+                        <v-card class="elevation-15">
+                            <v-toolbar color="deep-orange darken-3">
+                                <v-toolbar-title>Complete tests</v-toolbar-title>
+                                <v-spacer></v-spacer>
+                            </v-toolbar>
+                            <v-card-text>
+                                @foreach (var person in samplePersonId)
+                                {
+                                    <v-expansion-panel>
+                                        <v-expansion-panel-content>
+                                            <template v-slot:header>
+                                                <div>Sapmple person ID:<strong class="text-success">@person</strong> </div>
+                                            </template>
+                                            <v-card>
+                                                    <v-container>
+                                                        <v-layout align-center justify-center row fill-height>
+                                                            <v-flex xs12 sm8 md4>
+
+                                                                @foreach (var question in Model.Questions)
+                                                                {
+                                                                    <v-card-text><strong class="text-success">@question.Text</strong></v-card-text>
+
+                                                                    @if (question.Type == "Single")
+                                                                    {
+                                                                        <v-radio-group>
+                                                                            @foreach (var answer in question.AnswerChoices)
+                                                                            {
+                                                                                if (answer.SamplePersonId == person)
+                                                                                {
+                                                                                    <v-radio label="@answer.Text" name="Answers_@question.Id" readonly></v-radio>
+                                                                                }
+                                                                            }
+                                                                        </v-radio-group>
+                                                                    }
+                                                                    else if (question.Type == "Multiple")
+                                                                    {
+                                                                        @foreach (var answer in question.AnswerChoices)
+                                                                        {
+                                                                            if (answer.SamplePersonId == person)
+                                                                            {
+                                                                                <v-checkbox checked name="Answers" value="true" label="@answer.Text" readonly></v-checkbox>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    else if (question.Type == "Short")
+                                                                    {
+                                                                        @foreach (var answer in question.AnswerChoices)
+                                                                        {
+                                                                            if (answer.SamplePersonId == person)
+                                                                            {
+                                                                                <v-textarea name="@answer.Id"
+                                                                                            box
+                                                                                            label="Input text here"
+                                                                                            rows="2"
+                                                                                            auto-grow
+                                                                                            counter="200"
+                                                                                            id="@answer.Id"
+                                                                                            value=" @answer.Text"
+                                                                                            readonly>
+                                                                                </v-textarea>
+
+                                                                            }
+                                                                        }
+
+                                                                    }
+                                                                    else if (question.Type == "Range")
+                                                                    {
+                                                                        @foreach (var answer in question.AnswerChoices)
+                                                                        {
+                                                                            if (answer.SamplePersonId == person)
+                                                                            {
+                                                                                <v-text-field type="number" label="From 0 to 10" min="0" max="10" value="@answer.Text" id="@answer.Id" readonly></v-text-field>
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                }
+                                                            </v-flex>
+                                                        </v-layout>
+                                                    </v-container>
+
+                                            </v-card>
+                                        </v-expansion-panel-content>
+                                    </v-expansion-panel>
+                                }
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+
+        </v-content>
+    </v-app>
+</div>
+
+@section Scripts{
+    <script>
+        var app = new Vue({
+            el: '#app',
+                        data() {
+                            return {
+                                drawer: true,
+                                itemsForMembers: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home", id: "homeBtn" },
+                                    { title: "Create test", link: "/Test/CreateTest/", icon: "ballot" },
+                                    { title: "Graphs", link: "/Test/Graphs/", icon: "equalizer" }
+
+                                ],
+                                itemsLoginPartial: [
+                                    { title: "Login", link: "/Account/Login/" },
+                                    { title: "Register", link: "/Account/Register/" }
+                                ],
+                                itemsForAdmins: [
+                                    { title: "Home", link: "/Home/Index/", icon: "home" },
+                                    { title: "Manage user roles", link: "/Admin/ManageUserRoles/", icon: "dashboard" },
+                                    { title: "Manage users", link: "/Admin/Members/", icon: "people" }
+                                ],
+                                headers: [
+                                    { text: "Title", align: "center", sortable: false, value: "title" },
+                                    { text: "Description", value: "description" },
+                                    { text: "Create date", value: "createDate" },
+                                    { text: "Last modified date", value: "lastMD" },
+                                ],
+                                tests: [],
+                                dropDownFromResult: [
+                                    { title: "Single answer", link: "/Question/CreateSingleAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Short answer", link: "/Question/CreateShortAnswer/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Multiple choice", link: "/Question/CreateMultipleChoice/@ViewContext.RouteData.Values["id"]" },
+                                    { title: "Range answer", link: "/Question/CreateRangeQuestion/@ViewContext.RouteData.Values["id"]" }
+                                ]
+                            }
+                        }
+        })
+    </script>
+}

@@ -1,0 +1,56 @@
+﻿@model List<Question>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @foreach (var question in Model)
+                {
+                    <div class="row">
+                        <div class="offset-4">
+                            @question.Text
+                        </div>
+                    </div>
+                    foreach (var answer in question.AnswerChoices)
+                    {
+                    <div class="row">
+                        <div class="offset-4">
+                            @if (question.Type == "Multiple" && question.Id == answer.QuestionId)
+                            {
+                                <div class="col-auto">
+                                    <input type="checkbox" id="@answer.Id" disabled checked />
+                                    <label asp-for="@answer.Id">@answer.Text</label>
+                                </div>
+                            }
+                            else if (question.Type == "Single" && question.Id == answer.QuestionId)
+                            {
+                                <div class="col-auto">
+                                    <input type="radio" id="@answer.Id" checked disabled />
+                                    <label asp-for="@answer.Id">@answer.Text</label>
+                                </div>
+                            }
+                            else if (question.Type == "Short" && question.Id == answer.QuestionId)
+                            {
+                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="2" readonly>@answer.Text</textarea>
+                            }
+                            else if (question.Type == "Range" && question.Id == answer.QuestionId)
+                            {
+                                <input type="number" min="0" max="10" value="@answer.Text" readonly />
+                            }
+                        </div>
+                    </div>
+                    }
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+﻿@model IEnumerable<AppUser>
+
+<div class="container-fluid" style="margin-top:6%;">
+    <div class="row">
+            <div class="col-sm-4">
+            <table class="table-hover table-responsive-sm table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Login</th>
+                        <th scope="col">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var user in Model)
+                    {
+                        <tr>
+                            <td>@user.Id</td>
+                            <td>@user.UserName</td>
+                            <td>
+                                <form asp-action="DeleteMember" asp-controller="Admin" asp-route-id="@user.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form> 
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
